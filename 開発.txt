@@ -1,4 +1,31 @@
-CSV取り込み機能
+===会社情報====
+更新時
+actived: true
+=========
+
+=====権限情報=====
+
+フロント側は
+担当者情報を参考
+権限テーブル
+
+
+rails側
+t_company = TCompany.find_by_id(t_company_id)
+# この間にincludesしてあげる
+
+um_t_accounts = t_company.um_t_company.um_t_accounts
+# um_t_accounts.each do |um_t_account|
+#  um_t_account.um_t_account_authority
+# end
+
+TAccoutSerializer(um_t_accounts)~~~
+→アカウントの一覧が手に入る
+権限情報を返せばいい
+→各アカウントの権限情報を返す
+=====権限情報=====
+
+=====CSV取り込み機能=====
 
 ボタンは自体は未編集時に表示
 
@@ -64,10 +91,10 @@ def  office_csv_import
       t_office.um_t_office.update!(~~~~^)
 
     else
-      #顧客事業所情報作成
-      UserMax::TOffice.create!(~~~~~)
-
+      #顧客事業所情報作成(自動同期)
+      um_t_office = UserMax::TOffice.create!(~~~~~)
       #事業所ID自動作成
+      #少なくともum_t_office: um_t_office[:id]の記載は必要
       t_office = TOffice.create!(~~~~~)
       CCompanyOffice.create!(~~~~~)
       TMatterOffice.create!(~~~~~)
@@ -81,7 +108,7 @@ end
 
 
 
-★CSV出力
+========CSV出力==========
 
 
 ボタンは自体は未編集時に表示
@@ -118,10 +145,16 @@ def  office_csv_download
   response ok
 end
 
+=======事業所追加=======
+
+<v-btn>追加</v-btn>
+→事業所新規登録画面へ遷移
+→パラメータにcompany_idの情報を付与してあげることが必要そうだけど、新規登録画面に遷移できるだけでいい
+=======事業所追加/=======
 
 
 
-★決算情報
+=======決算情報=======
 
 決算年月を下記にする
 フロントで「2022-01-01」と渡ってきた値をrailsで「2022-01」で登録する方法を教えてください
@@ -204,6 +237,9 @@ export default {
 
 決算情報って何が必須なん？
 
+マイナスの計算方法の定義を知る
+数値だけ入れられるのはv-money-field
+
 company.jsのバリデーション
 saveメソッド内で定義する
 eachで回す
@@ -213,6 +249,11 @@ item.~~
 pushして
 return
 ==========決算情報の計算のバリデーション=========
+
+
+====グレード====
+computedで定義
+====グレード====
 
 
 
