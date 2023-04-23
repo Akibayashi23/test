@@ -60,13 +60,18 @@ def  office_csv_import
         end
       end
 
-      # 顧客MAx事業所情報更新
-      
+      # 顧客事業所情報更新
+      t_office.um_t_office.update!(~~~~^)
+
     else
+      #顧客事業所情報作成
+      UserMax::TOffice.create!(~~~~~)
+
       #事業所ID自動作成
       t_office = TOffice.create!(~~~~~)
       CCompanyOffice.create!(~~~~~)
       TMatterOffice.create!(~~~~~)
+
     end
   end
   ログの作成
