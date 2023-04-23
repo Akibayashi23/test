@@ -35,7 +35,7 @@ TAccoutSerializer(um_t_accounts)~~~
 <v-file-input label="CSV取り込み" accept=".csv" @change="officeCSVImport" />
 
 メソッド
-async  officeCSVImport (event) {
+async officeCSVImport (event) {
 	const formData = new FormData()
   formData.append('csv_file', event.target.files[0])
 
@@ -59,7 +59,7 @@ get office_csv_import
 
 
 下記以降はfaciilty.rbを参考
-def  office_csv_import
+def office_csv_import
   csv_file = params[:csv_file]
   CSV.foreach(csv_file.path, headers: true) do |row|
 
@@ -106,11 +106,7 @@ def  office_csv_import
 end
 
 
-
-
 ========CSV出力==========
-
-
 ボタンは自体は未編集時に表示
 <v-btn @click="officeCSVDownload">事業所テンプレート</v-btn>
 
@@ -146,7 +142,6 @@ def  office_csv_download
 end
 
 =======事業所追加=======
-
 <v-btn>追加</v-btn>
 →事業所新規登録画面へ遷移
 →パラメータにcompany_idの情報を付与してあげることが必要そうだけど、新規登録画面に遷移できるだけでいい
@@ -155,7 +150,6 @@ end
 
 
 =======決算情報=======
-
 決算年月を下記にする
 フロントで「2022-01-01」と渡ってきた値をrailsで「2022-01」で登録する方法を教えてください
 
