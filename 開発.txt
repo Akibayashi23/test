@@ -1,0 +1,223 @@
+CSV取り込み機能
+
+ボタンは自体は未編集時に表示
+
+★front
+<v-file-input label=“CSV取り込み” accept=".csv" @change=“officeCSVImport”></v-file-input>
+上記もしくは下
+<v-file-input label="CSV取り込み" accept=".csv" @change="officeCSVImport" />
+
+メソッド
+async  officeCSVImport (event) {
+	const formData = new FormData()
+  formData.append('csv_file', event.target.files[0])
+
+	→引数にthis.item.idとformData
+  axios.post('/api/upload_csv', formData).then(response => {
+    // 成功した場合の処理
+    console.log(response.data)
+  }).catch(error => {
+    // エラーが発生した場合の処理
+    console.error(error)
+  })
+}
+
+
+CompanyAPI.jsにも定義
+
+
+Rails側
+routes
+get office_csv_import
+
+
+下記以降はfaciilty.rbを参考
+def  office_csv_import
+  csv_file = params[:csv_file]
+  CSV.foreach(csv_file.path, headers: true) do |row|
+
+    #この形でrowを沢山定義しないといけない
+    ＃そのrowを持ってしてt_officesとc_company_officeとt_matter_officeをinsertやupdateしてあげないといけない
+    #100%使用するrowをここで全定義
+    office_id = row[:事業所ID]
+    t_office = TOffice.find_by_id(office_id)
+    if t_office.present?
+      #事業所レコードupdate
+      t_office.update!(row.to_h)
+
+      c_company_office = t_office.c_company_offices.find_by(t_office_id: t_office[:id], t_company_id: params[:id])
+      #rowで判別
+      if c_company_office.present?
+        c_company_office.update!(~~~)
+      end
+      if c_company_office.present? && row[:案件番号].present?
+        row[:案件番号].split(",").each do |matter_no|
+          t_matter = TMatter.find_by(matter_no: matter_no)
+          t_matter_office = t_office.t_matter_offices.find_by(t_office_id: t_office[:id], t_matter_id: t_matter[:id])
+          if t_matter_office.present?
+            t_matter_office.update(~~~~)
+          end
+        end
+      end
+
+      # 顧客MAx事業所情報更新
+      
+    else
+      #事業所ID自動作成
+      t_office = TOffice.create!(~~~~~)
+      CCompanyOffice.create!(~~~~~)
+      TMatterOffice.create!(~~~~~)
+    end
+  end
+  ログの作成
+  response ok
+end
+
+
+
+
+★CSV出力
+
+
+ボタンは自体は未編集時に表示
+<v-btn @click="officeCSVDownload">事業所テンプレート</v-btn>
+
+メソッド
+＃一覧のCSVダウンロード機能を参考にしたら一発やん。
+async  officeCSVDownload (event) {
+  ＃下記のようなダウンロードしている箇所を見る
+  axios.get('/csv', {
+    responseType: 'blob'
+  }).then((response) => {
+    const url = window.URL.createObjectURL(new Blob([response.data]))
+    const link = document.createElement('a')
+    link.href = url
+    link.setAttribute('download', 'data.csv')
+    document.body.appendChild(link)
+    link.click()
+  })
+}
+
+
+CompanyAPI.jsにも定義
+
+
+Rails側
+基本的には一覧の機能を参考にする
+
+routes
+get office_csv_download
+
+def  office_csv_download
+  ログの作成
+  response ok
+end
+
+
+
+
+★決算情報
+
+決算年月を下記にする
+フロントで「2022-01-01」と渡ってきた値をrailsで「2022-01」で登録する方法を教えてください
+
+====ストロングパラメータ内　dateを決算年月にする=====
+# フロントで渡ってきた文字列
+date_str = '2022-01'
+# 日付型に変換
+date = Date.parse(date_str + "-01")
+
+# "2022-01-01"というフォーマットの文字列に変換
+formatted_date = date.strftime('%Y-%m-%d')
+
+# 確認用の出力
+puts formatted_date
+# => "2022-01-01"
+====ストロングパラメータ内でそうする=====
+
+====serialezerでフロントにdateから決算年月に定義する方法=====
+settlementモデル内で以下定義
+def date_to_month_string
+  self.決算年月.present? ? self.決算年月.strftime("%Y-%m") : ""
+end
+
+====serialezerでフロントにdateから決算年月に定義する方法=====
+
+
+======決算年月順で配列取得==========
+決算年月順
+API側で決算年月順で取得
+settlements.order(決算年月: :desc)
+
+https://chat.openai.com/c/f70bb622-3d60-4b99-83d3-997f184d42c7
+
+
+フロント側で最新3件
+<template>
+  <div>
+    <v-data-table :headers="headers" :items="displaySettlementItems" hide-default-footer>
+    </v-data-table>
+    v-ifをdepressdする
+    <v-btn @click="showSettlementAll = true" v-if="!showSettlementAll">全て</v-btn>
+  </div>
+</template>
+
+<script>
+export default {
+  data() {
+    return {
+      items: [], // Railsから取得した配列
+      showAll: false // 全てを表示するかどうかのフラグ
+    }
+  },
+  computed: {
+    headers() {
+      return [
+        { text: 'ID', value: 'id' },
+        { text: '名前', value: 'name' },
+        { text: '作成日時', value: 'createdAt' },
+      ]
+    },
+    displaySettlementItems () {
+      // const sortedItems = this.items.slice().sort((a, b) => b.created_at.localeCompare(a.created_at));
+      // 下記ソースコードをitems直書でもいいかも
+      // return this.showAll ? sortedItems : sortedItems.slice(0, 3);
+      return this.showAll ? items : items.slice(0, 3);
+    }
+  },
+  created() {
+    // Railsからデータを取得し、this.itemsに格納する処理
+  }
+}
+</script>
+========================
+
+
+
+
+==========決算情報の計算のバリデーション=========
+
+決算情報って何が必須なん？
+
+company.jsのバリデーション
+saveメソッド内で定義する
+eachで回す
+配列の0番目できる
+item.~~
+金額一致していなかったら、決算年月〜〜の値が不一致です。
+pushして
+return
+==========決算情報の計算のバリデーション=========
+
+
+
+
+
+
+
+
+
+
+
+
+
