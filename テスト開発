@@ -1,21 +1,17 @@
 <template>
-  <v-text-field v-model="inputValue" @input="onInput" />
+  <v-text-field
+    v-model="input"
+    label="半角数字とハイフンのみを入力してください"
+    :mask="[/\d/, '-', /\d/, /\d/, '-', /\d/, /\d/]"
+  ></v-text-field>
 </template>
 
 <script>
 export default {
   data() {
     return {
-      inputValue: ""
-    };
-  },
-  methods: {
-    onInput(event) {
-      // 入力値を半角数字とハイフンのみに制限する
-      const allowedChars = /[0-9-]/g;
-      const newValue = event.target.value.match(allowedChars).join("");
-      this.inputValue = newValue;
+      input: ''
     }
   }
-};
+}
 </script>
