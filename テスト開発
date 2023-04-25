@@ -1,0 +1,21 @@
+<template>
+  <v-text-field v-model="inputValue" @input="onInput" />
+</template>
+
+<script>
+export default {
+  data() {
+    return {
+      inputValue: ""
+    };
+  },
+  methods: {
+    onInput(event) {
+      // 入力値を半角数字とハイフンのみに制限する
+      const allowedChars = /[0-9-]/g;
+      const newValue = event.target.value.match(allowedChars).join("");
+      this.inputValue = newValue;
+    }
+  }
+};
+</script>
