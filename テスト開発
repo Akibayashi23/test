@@ -2,7 +2,7 @@
   <v-text-field
     v-model="input"
     label="半角数字とハイフンのみを入力してください"
-    :mask="[/\d/, '-', /\d/, /\d/, '-', /\d/, /\d/]"
+    @input="validateInput"
   ></v-text-field>
 </template>
 
@@ -11,6 +11,11 @@ export default {
   data() {
     return {
       input: ''
+    }
+  },
+  methods: {
+    validateInput() {
+      this.input = this.input.replace(/[^\d-]/g, '')
     }
   }
 }
