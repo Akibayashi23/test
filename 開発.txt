@@ -148,6 +148,18 @@ end
 =======事業所追加/=======
 
 
+function validateDate(dateString) {
+  var pattern = /^([0-9]{4})-([0-9]{2})$/;
+  if (!pattern.test(dateString)) {
+    alert("日付は YYYY-MM 形式で入力してください");
+    return false;
+  }
+  return true;
+}
+
+
+
+
 
 =======決算情報=======
 決算年月を下記にする
