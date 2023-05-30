@@ -1,0 +1,30 @@
+はい、3つのソースコードは異なる結果を返す可能性があります。
+
+1. 最初のソースコード：
+   ```ruby
+   class Record < ApplicationRecord
+     scope :search_by_ids, ->(ids) {
+       or_conditions = ids.map { |id| "JSON_CONTAINS(data->'$.ids', '#{id}')" }
+       where(or_conditions.join(' OR '))
+     }
+   end
+   ```
+   このコードは、`JSON_CONTAINS`関数を使用してJSON配列内の要素を検索します。指定された`ids`配列のいずれかが`data`カラムのJSON配列内の`$.ids`パスに含まれる場合、それに一致するレコードを返します。
+
+2. 2番目のソースコード：
+   ```ruby
+   class Record < ApplicationRecord
+     scope :search_by_ids, ->(ids) { where("data->>'$.ids' IN (?)", ids) }
+   end
+   ```
+   このコードも、`data`カラムのJSONデータ内の`$.ids`パスに対して直接的に`IN`演算子を使用して検索します。指定された`ids`配列のいずれかが`data`カラム内の`$.ids`パスに含まれる場合、それに一致するレコードを返します。
+
+3. 3番目のソースコード：
+   ```ruby
+   class Record < ApplicationRecord
+     scope :search_by_ids, ->(ids) { where("FIND_IN_SET(data->>'$.ids', :ids) > 0", ids: ids.join(',')) }
+   end
+   ```
+   このコードは、`FIND_IN_SET`関数を使用して文字列内での一致を検索します。指定された`ids`配列が`data`カラムのJSONデータ内の`$.ids`パスに含まれるカンマ区切りの文字列内に存在する場合、それに一致するレコードを返します。
+
+これらのソースコードは、データベースの構造とデータの形式によって異なる結果を返す可能性があります。JSONのデータ形式やテーブルの構造に応じて、適切なソースコードを選択する必要があります。また、データベースのバージョンや最適化の要件にも注意が必要です。
