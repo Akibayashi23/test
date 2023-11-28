@@ -1,4 +1,91 @@
-	
+export class SomeComponent implements OnInit {
+    links: any[] = [];
+
+    constructor(private permissionsService: PermissionsService) {}
+
+    ngOnInit() {
+        if (this.permissionsService.hasPermission('admin')) {
+            this.links = [/* 管理者用のリンクセット */];
+        } else if (this.permissionsService.hasPermission('user')) {
+            this.links = [/* 一般ユーザー用のリンクセット */];
+        }
+        // その他の権限に応じた条件分岐
+    }
+}
+
+
+
+
+@Injectable({ providedIn: 'root' })
+export class PermissionsService {
+    private permissions: Set<string> = new Set();
+
+    constructor() {
+        // ここで権限データをセットアップします
+        // 例: APIから取得した権限データをセットする
+    }
+
+    setPermissions(permissions: string[]) {
+        this.permissions = new Set(permissions);
+    }
+
+    hasPermission(permission: string): boolean {
+        return this.permissions.has(permission);
+    }
+}
+
+
+
+@Component({
+    selector: 'app-some-component',
+    template: `
+        <ul>
+            <li *ngFor="let link of links">
+                <a [routerLink]="link.route">{{ link.title }}</a>
+            </li>
+        </ul>
+    `
+})
+export class SomeComponent implements OnInit {
+    links: any[] = [];
+
+    constructor(private permissionsService: PermissionsService) {}
+
+    ngOnInit() {
+    this.links = [
+        { title: '建築会社一覧', route: '/companies', permissions: ['view_companies', 'edit_companies'] },
+        { title: '建築会社登録', route: '/companies/register', permissions: ['register_company'] },
+        { title: '建築会社詳細', route: '/companies/detail', permissions: ['view_company_detail', 'edit_company_detail'] },
+        { title: 'カタログ一覧', route: '/catalogs', permissions: ['view_catalogs', 'manage_catalogs'] },
+        { title: 'カタログ登録', route: '/catalogs/register', permissions: ['register_catalog'] },
+        { title: 'カタログ詳細', route: '/catalogs/detail', permissions: ['view_catalog_detail', 'edit_catalog_detail'] },
+        { title: '建築事例一覧', route: '/examples', permissions: ['view_examples', 'edit_examples'] },
+        { title: '建築事例登録', route: '/examples/register', permissions: ['register_example'] },
+        { title: '建築事例詳細', route: '/examples/detail', permissions: ['view_example_detail', 'edit_example_detail'] }
+    ].filter(link => link.permissions.some(permission => this.permissionsService.hasPermission(permission)));
+}
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 ホーム
 ★先にお知らせ一覧部分から着手しよう
