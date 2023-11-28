@@ -1,3 +1,77 @@
+
+
+Angularで異なる環境（開発、テスト、本番）に基づいて異なるテキストを表示するには、環境設定ファイルと条件分岐を使用するのが一般的な方法です。以下に手順を説明します。
+
+1. **環境設定ファイルの作成**: Angularプロジェクトには通常、`environment.ts`（開発環境用）と`environment.prod.ts`（本番環境用）の２つの環境設定ファイルがあります。テスト環境用に追加のファイル（例：`environment.test.ts`）を作成できます。
+
+2. **環境変数の設定**: 各環境設定ファイルに、表示したいテキストに対応する変数を設定します。例えば、
+   - `environment.ts`: `{ envName: '開発環境' }`
+   - `environment.prod.ts`: `{ envName: '本番環境' }`
+   - `environment.test.ts`: `{ envName: 'テスト環境' }`
+
+3. **Angular CLIの設定**: `angular.json`ファイルで、テスト環境用の設定を追加します。これにより、ビルド時に適切な環境ファイルが使用されます。
+
+4. **コンポーネントでの使用**: 必要なコンポーネントで環境変数をインポートし、テンプレート内で表示します。例えば、
+   ```typescript
+   import { environment } from '../environments/environment';
+
+   // コンポーネントクラス内
+   envName = environment.envName;
+   ```
+   そして、テンプレートファイル（HTML）内で、
+   ```html
+   <p>{{ envName }}</p>
+   ```
+
+このように設定すると、ビルド時に指定された環境に基づいて、適切なテキストが画面に表示されます。開発環境では「開発環境」、テスト環境では「テスト環境」、本番環境では「本番環境」というテキストが表示されるようになります。
+
+
+
+Angular CLIでテスト環境用の設定を`angular.json`ファイルに追加するには、以下の手順を実行します。
+
+1. **`angular.json`ファイルを開く**: プロジェクトのルートディレクトリにある`angular.json`ファイルを開きます。
+
+2. **ビルド設定を見つける**: `projects -> [your-project-name] -> architect -> build -> configurations`のセクションを探します。ここで`[your-project-name]`はあなたのプロジェクト名に置き換えてください。
+
+3. **新しい環境設定を追加**: 既存の`production`設定の隣に、新しいテスト環境用の設定ブロックを追加します。例えば、`test`という名前で設定を追加することができます。これには、新しい環境ファイルへの参照が含まれます。以下に例を示します。
+
+   ```json
+   "configurations": {
+     "production": {
+       ...
+     },
+     "test": {
+       "fileReplacements": [
+         {
+           "replace": "src/environments/environment.ts",
+           "with": "src/environments/environment.test.ts"
+         }
+       ]
+     }
+   }
+   ```
+
+   ここで、`fileReplacements`セクションは、ビルド時に`environment.ts`を`environment.test.ts`で置き換えるようAngularに指示します。
+
+4. **ビルドスクリプトを追加（任意）**: 必要に応じて、`package.json`ファイルに新しいビルドスクリプトを追加できます。これにより、CLIでテスト環境のビルドを簡単に実行できます。例：
+
+   ```json
+   "scripts": {
+     ...
+     "build:test": "ng build --configuration=test"
+   }
+   ```
+
+これで設定は完了です。これにより、`ng build --configuration=test`を実行すると、`environment.test.ts`が使用されてビルドされます。これは、開発環境で`ng serve`を実行するのとは異なり、ビルドされたアプリケーションがテスト環境用の設定で実行されることを意味します。
+
+
+
+
+
+
+
+
+
 export class SomeComponent implements OnInit {
     links: any[] = [];
 
