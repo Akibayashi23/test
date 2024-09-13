@@ -1,4 +1,40 @@
 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WebRTC Screen Sharing</title>
+</head>
+<body>
+  <h1>WebRTC Screen Sharing</h1>
+  <video id="screenVideo" autoplay playsinline></video>
+  <button id="startButton">Start Screen Sharing</button>
+
+  <script>
+    const startButton = document.getElementById('startButton');
+    const videoElement = document.getElementById('screenVideo');
+
+    // ボタン押下で画面共有を開始
+    startButton.addEventListener('click', async () => {
+      try {
+        // 画面キャプチャのストリームを取得
+        const stream = await navigator.mediaDevices.getDisplayMedia({ video: true });
+        videoElement.srcObject = stream;
+
+        // ストリーム終了時にイベントを発火
+        stream.getVideoTracks()[0].addEventListener('ended', () => {
+          alert('Screen sharing stopped.');
+        });
+      } catch (err) {
+        console.error("Error: " + err);
+      }
+    });
+  </script>
+</body>
+</html>
+
+
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { HomeComponent } from './home/home.component';
