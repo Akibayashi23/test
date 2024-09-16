@@ -316,6 +316,144 @@
 
 
 
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Camera Selection Demo</title>
+</head>
+<body>
+
+<!-- カメラの選択肢を表示 -->
+<select id="camera_select"></select>
+
+<!-- カメラ映像が描画されます。 -->
+<video id="video_area" style="background-color: #000" autoplay></video>
+
+<!-- 押下するとカメラ映像描画を開始します。 -->
+<button id="start_btn">映像表示開始</button>
+
+<script>
+    // カメラ一覧取得してドロップダウンに表示
+    const cameraSelect = document.getElementById('camera_select');
+    const videoArea = document.getElementById('video_area');
+    const startBtn = document.getElementById('start_btn');
+
+    async function getCameras() {
+        // デバイス一覧を取得
+        const devices = await navigator.mediaDevices.enumerateDevices();
+        console.log('devices', devices)
+        const videoDevices = devices.filter(device => device.kind === 'videoinput');
+
+        // カメラの選択肢を作成
+        videoDevices.forEach((device, index) => {
+            const option = document.createElement('option');
+            option.value = device.deviceId;
+            option.text = device.label || `カメラ ${index + 1}`;
+            cameraSelect.appendChild(option);
+        });
+    }
+
+    // カメラを選択して映像を表示
+    startBtn.addEventListener('click', async () => {
+        const selectedCameraId = cameraSelect.value;
+        if (!selectedCameraId) {
+            alert('カメラが選択されていません');
+            return;
+        }
+
+        // 選択されたカメラで映像取得
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({
+                video: { deviceId: selectedCameraId, width: 1280, height: 720 },
+                audio: false
+            });
+            videoArea.srcObject = stream;
+        } catch (err) {
+            alert(`${err.name}: ${err.message}`);
+        }
+    });
+
+    // ページ読み込み時にカメラ一覧を取得
+    getCameras();
+</script>
+
+</body>
+</html>
+
+
+
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Camera Selection Demo</title>
+</head>
+<body>
+
+<!-- カメラの選択肢を表示 -->
+<select id="camera_select"></select>
+
+<!-- カメラ映像が描画されます。 -->
+<video id="video_area" style="background-color: #000" autoplay></video>
+
+<!-- 押下するとカメラ映像描画を開始します。 -->
+<button id="start_btn">映像表示開始</button>
+
+<script>
+    const cameraSelect = document.getElementById('camera_select');
+    const videoArea = document.getElementById('video_area');
+    const startBtn = document.getElementById('start_btn');
+
+    // カメラ一覧を取得する関数
+    async function getCameras() {
+        // 初回のアクセスでカメラの権限を取得
+        await navigator.mediaDevices.getUserMedia({ video: true });
+
+        // デバイス一覧を取得
+        const devices = await navigator.mediaDevices.enumerateDevices();
+        const videoDevices = devices.filter(device => device.kind === 'videoinput');
+
+        // ドロップダウンをクリアしてから新しい選択肢を追加
+        cameraSelect.innerHTML = '';
+
+        // カメラの選択肢を作成
+        videoDevices.forEach((device, index) => {
+            const option = document.createElement('option');
+            option.value = device.deviceId;
+            option.text = device.label || `カメラ ${index + 1}`;
+            cameraSelect.appendChild(option);
+        });
+    }
+
+    // 選択されたカメラの映像を表示
+    startBtn.addEventListener('click', async () => {
+        const selectedCameraId = cameraSelect.value;
+        if (!selectedCameraId) {
+            alert('カメラが選択されていません');
+            return;
+        }
+
+        // 選択されたカメラで映像取得
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({
+                video: { deviceId: selectedCameraId, width: 1280, height: 720 },
+                audio: false
+            });
+            videoArea.srcObject = stream;
+        } catch (err) {
+            alert(`${err.name}: ${err.message}`);
+        }
+    });
+
+    // ページ読み込み時にカメラ一覧を取得
+    getCameras();
+</script>
+
+</body>
+</html>
 
 
 
