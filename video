@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WebRTC Screen Sharing</title>
+</head>
+<body>
+  <h1>WebRTC Screen Sharing</h1>
+  <video id="screenVideo" autoplay playsinline></video>
+  <button id="startButton">Start Screen Sharing</button>
+
+  <script>
+    const startButton = document.getElementById('startButton');
+    const videoElement = document.getElementById('screenVideo');
+
+    // ボタン押下で画面共有を開始
+    startButton.addEventListener('click', async () => {
+      try {
+        // 画面キャプチャのストリームを取得
+        const stream = await navigator.mediaDevices.getDisplayMedia({ video: true });
+        videoElement.srcObject = stream;
+
+        // ストリーム終了時にイベントを発火
+        stream.getVideoTracks()[0].addEventListener('ended', () => {
+          alert('Screen sharing stopped.');
+        });
+      } catch (err) {
+        console.error("Error: " + err);
+      }
+    });
+  </script>
+</body>
+</html>
+
+
+
+
+
+
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>カメラ切り替えと画面共有アプリ</title>
+    <style>
+        video {
+            width: 100%;
+            max-width: 600px;
+            border: 1px solid #ddd;
+        }
+        select, button {
+            margin: 10px 0;
+            padding: 10px;
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+    <h1>カメラ切り替えと画面共有アプリ</h1>
+
+    <!-- カメラの選択 -->
+    <select id="cameraSelect"></select>
+
+    <!-- 画面共有ボタン -->
+    <button onclick="startScreenShare()">画面共有を開始</button>
+
+    <!-- カメラ・画面共有用のビデオ表示領域 -->
+    <video id="video" autoplay playsinline></video>
+
+    <script>
+        let currentStream;
+
+        // カメラデバイスを取得
+        async function getCameras() {
+            const devices = await navigator.mediaDevices.enumerateDevices();
+            const cameras = devices.filter(device => device.kind === 'videoinput');
+            return cameras;
+        }
+
+        // カメラを切り替える
+        async function switchCamera(deviceId) {
+            if (currentStream) {
+                // 既存のストリームを停止
+                currentStream.getTracks().forEach(track => track.stop());
+            }
+
+            // 選択されたカメラで新しいストリームを取得
+            currentStream = await navigator.mediaDevices.getUserMedia({
+                video: { deviceId: deviceId }
+            });
+
+            const videoElement = document.getElementById('video');
+            videoElement.srcObject = currentStream;
+        }
+
+        // 画面共有を開始
+        async function startScreenShare() {
+            const screenStream = await navigator.mediaDevices.getDisplayMedia({
+                video: true
+            });
+
+            const videoElement = document.getElementById('video');
+            videoElement.srcObject = screenStream;
+
+            // 画面共有終了時にカメラに戻す
+            screenStream.getVideoTracks()[0].addEventListener('ended', async () => {
+                const cameras = await getCameras();
+                switchCamera(cameras[0].deviceId);
+            });
+        }
+
+        // 初期化
+        async function init() {
+            const cameras = await getCameras();
+            const select = document.getElementById('cameraSelect');
+
+            cameras.forEach(camera => {
+                const option = document.createElement('option');
+                option.value = camera.deviceId;
+                option.text = camera.label;
+                select.appendChild(option);
+            });
+
+            select.addEventListener('change', (event) => {
+                switchCamera(event.target.value);
+            });
+
+            // 最初のカメラを表示
+            if (cameras.length > 0) {
+                switchCamera(cameras[0].deviceId);
+            } else {
+                alert('カメラが検出されませんでした');
+            }
+        }
+
+        init();
+    </script>
+</body>
+</html>
+
+
+
+
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>画面共有とiPadミラーリング</title>
+    <style>
+        video {
+            width: 100%;
+            max-width: 600px;
+            border: 1px solid #ddd;
+        }
+        button {
+            margin: 10px 0;
+            padding: 10px;
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+    <h1>画面共有とiPadミラーリング</h1>
+
+    <!-- 画面共有ボタン -->
+    <button onclick="startScreenShare()">画面共有を開始</button>
+
+    <!-- 画面共有用ビデオ表示領域 -->
+    <video id="video" autoplay playsinline></video>
+
+    <script>
+        // 画面共有を開始
+        async function startScreenShare() {
+            try {
+                const screenStream = await navigator.mediaDevices.getDisplayMedia({
+                    video: true
+                });
+
+                const videoElement = document.getElementById('video');
+                videoElement.srcObject = screenStream;
+
+                // 画面共有終了時のイベントリスナー
+                screenStream.getVideoTracks()[0].addEventListener('ended', () => {
+                    alert('画面共有が終了しました');
+                });
+            } catch (err) {
+                console.error("画面共有の開始に失敗しました: ", err);
+            }
+        }
+    </script>
+</body>
+</html>
+
+
+
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>画面共有とiPadミラーリング</title>
+    <style>
+        video {
+            width: 100%;
+            max-width: 600px;
+            border: 1px solid #ddd;
+        }
+        button {
+            margin: 10px 0;
+            padding: 10px;
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+    <h1>画面共有とiPadミラーリング</h1>
+
+    <!-- 画面共有ボタン -->
+    <button onclick="startScreenShare()">画面共有を開始</button>
+
+    <!-- カメラ共有ボタン -->
+    <button onclick="startCamera()">カメラ映像を表示</button>
+
+    <!-- 画面共有用ビデオ表示領域 -->
+    <video id="video" autoplay playsinline></video>
+
+    <script>
+        // 画面共有を開始
+        async function startScreenShare() {
+            try {
+                const screenStream = await navigator.mediaDevices.getDisplayMedia({
+                    video: true
+                });
+                  
+                const videoElement = document.getElementById('video');
+                videoElement.srcObject = screenStream;
+
+                // 画面共有終了時のイベントリスナー
+                screenStream.getVideoTracks()[0].addEventListener('ended', () => {
+                    alert('画面共有が終了しました');
+                });
+            } catch (err) {
+                console.error("画面共有の開始に失敗しました: ", err);
+            }
+        }
+
+        // カメラ映像を表示
+        async function startCamera() {
+            try {
+                const cameraStream = await navigator.mediaDevices.getUserMedia({
+                    video: true,
+                    audio: false
+                });
+
+                const videoElement = document.getElementById('video');
+                videoElement.srcObject = cameraStream;
+
+                // カメラ映像終了時のイベントリスナー
+                cameraStream.getVideoTracks()[0].addEventListener('ended', () => {
+                    alert('カメラ映像が終了しました');
+                });
+            } catch (err) {
+                console.error("カメラ映像の開始に失敗しました: ", err);
+            }
+        }
+    </script>
+</body>
+</html>
+
+
+
+
+
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width">
+  <title>getUserMedia-Demo</title>
+</head>
+<body>
+
+<!-- カメラ映像が描画されます。 -->
+<video id="video_area" style="background-color: #000" autoplay></video>
+
+<!-- 押下するとカメラ映像描画を開始します。 -->
+<button id="start_btn">映像表示開始</button>
+
+</body>
+<script>
+
+    // getUserMedia が使えないときは、『getUserMedia()が使えないブラウザだよ』と言ってね。
+    if (typeof navigator.mediaDevices.getUserMedia !== 'function') {
+        const err = new Error('getUserMedia()が使えないブラウザだよ');
+        alert(`${err.name} ${err.message}`);
+        throw err;
+    }
+
+    // 操作する画面エレメント変数定義します。
+    const $start = document.getElementById('start_btn');   // スタートボタン
+    const $video = document.getElementById('video_area');  // 映像表示エリア
+
+    // 「スタートボタン」を押下で、getUserMedia を使って映像を「映像表示エリア」に表示するよ。
+    $start.addEventListener('click', () => {
+        navigator.mediaDevices.getUserMedia({ video: true, audio: false })
+        .then(stream => $video.srcObject = stream)
+        .catch(err => alert(`${err.name} ${err.message}`));
+    }, false);
+
+</script>
+
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
