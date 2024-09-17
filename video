@@ -1,3 +1,80 @@
+
+
+const constraints = {
+  video: {
+    width: { min: 1280, ideal: 1920, max: 2560 }, // 解像度の範囲指定
+    height: { min: 720, ideal: 1080, max: 1440 },
+    frameRate: { min: 15, ideal: 30, max: 60 }
+  }
+};
+
+
+
+
+
+const constraints = {
+  video: {
+    width: { ideal: 1920 }, // 理想的な解像度は1920pxだが、それに近い値でも可
+    height: { ideal: 1080 },
+    frameRate: { ideal: 30 } // 30fpsが理想だが、利用可能なら他の値も許可
+  }
+};
+
+navigator.mediaDevices.getUserMedia(constraints)
+  .then(stream => {
+    // 取得したストリームを利用する
+  })
+  .catch(err => {
+    console.error("Error accessing media devices.", err);
+  });
+
+
+
+import React, { useState, useRef } from 'react';
+
+const ScreenCapture: React.FC = () => {
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  const startCapture = async () => {
+    try {
+      // 解像度を指定して、画面キャプチャを取得
+      const stream = await navigator.mediaDevices.getDisplayMedia({
+        video: {
+          width: { ideal: 2048 }, // 希望する解像度 (iPad Proなどに対応)
+          height: { ideal: 1536 }, // 希望する解像度
+          frameRate: { ideal: 30 }, // フレームレートを指定 (30fps)
+        }
+      });
+
+      // video要素にストリームを設定
+      if (videoRef.current) {
+        videoRef.current.srcObject = stream;
+        videoRef.current.play();
+      }
+    } catch (err) {
+      setError('画面キャプチャに失敗しました: ' + (err as Error).message);
+    }
+  };
+
+  return (
+    <div>
+      {error && <p>{error}</p>}
+      <video ref={videoRef} autoPlay playsInline style={{ width: '100%' }} />
+      <button onClick={startCapture}>画面キャプチャを開始</button>
+    </div>
+  );
+};
+
+export default ScreenCapture;
+
+
+
+
+
+
+
+
 import React, { useState, useRef } from 'react';
 
 const ScreenCapture: React.FC = () => {
