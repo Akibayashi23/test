@@ -1,3 +1,69 @@
+import React, { useState, useRef } from 'react';
+
+const ScreenCapture: React.FC = () => {
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  const startCapture = async () => {
+    try {
+      // 解像度を指定して、画面キャプチャを取得
+      const stream = await navigator.mediaDevices.getDisplayMedia({
+        video: {
+          width: { ideal: 2048 }, // 希望する解像度 (iPad Proなどに対応)
+          height: { ideal: 1536 }, // 希望する解像度
+          frameRate: { ideal: 30 }, // フレームレートを指定 (30fps)
+        }
+      });
+
+      // video要素にストリームを設定
+      if (videoRef.current) {
+        videoRef.current.srcObject = stream;
+        videoRef.current.play();
+      }
+    } catch (err) {
+      setError('画面キャプチャに失敗しました: ' + (err as Error).message);
+    }
+  };
+
+  return (
+    <div>
+      {error && <p>{error}</p>}
+      <video ref={videoRef} autoPlay playsInline style={{ width: '100%' }} />
+      <button onClick={startCapture}>画面キャプチャを開始</button>
+    </div>
+  );
+};
+
+export default ScreenCapture;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
